@@ -23,6 +23,7 @@ var (
 	client, _    = tls_client.NewHttpClient(tls_client.NewNoopLogger(), options...)
 	access_token = os.Getenv("ACCESS_TOKEN")
 	puid         = os.Getenv("PUID")
+	cf_clearance = os.Getenv("CF_CLEARANCE")
 	http_proxy   = os.Getenv("http_proxy")
 )
 
@@ -53,6 +54,14 @@ func main() {
 			// Set authorization header
 			req.Header.Set("Authorization", "Bearer "+access_token)
 			// Initial puid cookie
+			if cf_clearance != "" {
+				req.AddCookie(
+					&http.Cookie{
+						Name:  "cf_clearance",
+						Value: cf_clearance,
+					},
+				)
+			}
 			req.AddCookie(
 				&http.Cookie{
 					Name:  "_puid",
@@ -115,7 +124,7 @@ func proxy(c *gin.Context) {
 	if c.Request.URL.RawQuery != "" {
 		url = "https://chat.openai.com/backend-api" + c.Param("path") + "?" + c.Request.URL.RawQuery
 	} else {
-		url = "https://chat.openai.com/backend-api" + c.Param("path")
+	url = "https://chat.openai.com/backend-api" + c.Param("path")
 	}
 	request_method = c.Request.Method
 
@@ -143,6 +152,14 @@ func proxy(c *gin.Context) {
 			&http.Cookie{
 				Name:  "_puid",
 				Value: c.Request.Header.Get("Puid"),
+			},
+		)
+	}
+	if cf_clearance != "" {
+		request.AddCookie(
+			&http.Cookie{
+				Name:  "cf_clearance",
+				Value: cf_clearance,
 			},
 		)
 	}
