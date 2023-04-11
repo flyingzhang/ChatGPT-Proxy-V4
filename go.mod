@@ -1,4 +1,4 @@
-module github.com/acheong08/ChatGPT-Proxy-V4
+module github.com/flyingzhang/ChatGPT-Proxy-V4
 
 go 1.20
 
